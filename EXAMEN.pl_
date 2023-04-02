@@ -1,0 +1,74 @@
+:- dynamic paciente/4, salud/2, analisis/3.
+menu:- write('Bienvenido a nuestro hospital , proceda con su regsitro'), nl,
+    write('1. Registrar paciente'), nl,
+    write('2. Registrar estado de salud'), nl,
+    write('3. Añadir pacientes a emergencias'), nl,
+    write('4. Realizar analisis'),nl,
+    write('5. Mostrar resultados'),nl,
+    write('6. Salir'), nl,
+	read(O), opcion(O).
+
+opcion(1):-registrar_paciente,!,menu.
+opcion(2):-registrar_salud,!,menu.
+opcion(3):-añadir_pacientes,!,menu.
+opcion(4):-realizar_analisis,!,menu.
+opcion(5):-mostrar,!,menu.
+opcion(6):-fail.
+
+registrar_paciente:- write("Ingrese ID del caso"), read(N), N\=='zzz',
+    write("Ingrese sintomas del paciente"), read(C),
+    assert(paciente(N, C, 0, 0)), registrar_paciente;
+    write("Pacientes registrados"),nl.
+
+registrar_salud:- write("Ingrese nombre del paciente"), read(N), N\=='zzz',
+    write("Ingrese DNI del paciente"), read(D),
+    write("Ingrese edad del paciente"), read(E),
+    assert(salud(N,D,E)), registrar_salud;
+    write("sintomas registrados"), nl.
+
+añadir_pacientes:- write("Seleccione ID del caso"), read(Num), Num\=='zzz',
+    write("Ingrese nombre del paciente "), read(N),
+    retract(paciente(Num,C,A,Lista)),
+    assert(paciente(Num, C, A, [N|Lista])), nl, fail;
+    write("Pacientes añadidos"), nl.
+
+realizar_analisis:- write("Ingrese la ID del caso"), read(L),
+    write("Ingrese cantidad de enfermos"), read(A),
+    write("Ingrese la ID del segundo caso"), read(V),
+    write("Ingrese cantidad de enfermos"), read(B),
+    retract(paciente(L,C,P,List)), retract(paciente(V,Sint,Pje,Lista)),
+    Nuevo is P+A, Nvo is Pje+B,
+    assert(paciente(L,C,Nuevo,List)), assert(paciente(V,Sint,Nvo,Lista)), mostrar,
+    determinar_analisis(A,B,R),
+    assert(analisis(C,Sint, R)), nl,
+    write("analisis completo"), nl, mostrar_analisis.
+
+determinar_analisis(A, B, R):- A>B, R = "primer caso con mas pacientes".
+determinar_analisis(A, B, R):- A<B, R = "segundo caso con mas pacientes".
+determinar_analisis(A, B, R):- A=B, R = "ambos casos con igualdad de pacientes".
+
+mostrar_analisis:- analisis(L,V,R),
+    write("   primera enfermedad : "), write(L),
+    write("   segundo enfermedad: "), write(V),
+    write("   Resultado: "), write(R),nl,
+    fail; write("analisis concluido"), nl.
+
+mostrar:- paciente(N, C, P, L),
+    write("   ID del caso: "), write(N),
+    write("   Sintoma: "), write(C),
+    write("   afectados total: "), write(P),
+    write("   Lista de pacientes "), write(L).
+mostrar:- salud(N),
+    write("   Nombre del enfermo: "), write(N), nl,
+    fail; write("pacientes mostrados").
+
+
+
+
+
+principal:- menu.
+
+
+
+
+
